@@ -6,9 +6,9 @@ As a sysadmin, you might not only want to piss off attackers, but you might also
 The `analyze.py` script is a very simple Python script that uses your `journalctl` log to parse the `endlessh` log messages and print a nice summary about attackers that got stuck in the tarpit:
 
 ```bash
-# Shows open connections with their IP Address and utilized file descriptor
+# Shows open connections with their IP Address and creation time
 Currently open connections:
-        event=(IPv4Address('139.X.X.99'), 4)
+        39.X.X.99 since 2025-08-03 18:30:18.978000+00:00
 
 # Shows closed connections grouped by IP address
 Closed connections: 70

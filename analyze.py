@@ -215,7 +215,7 @@ def main():
 
         if event.type == ConnectionType.CLOSE:
             if not (connection := open_connections[event.conn()]):
-                print(f"Closing leftover connection: {event=}", file=sys.stderr)
+                print(f"Closing leftover connection: ip={event.ip}, fd={event.fd}", file=sys.stderr)
             else:
                 connection.add_event(event)
                 closed_connections.append(connection)
@@ -224,8 +224,8 @@ def main():
     if open_connections:
         print("")
         print("Currently open connections:")
-    for event in open_connections:
-        print(f"\t{event=}")
+    for conn in open_connections.values():
+        print(f"\t{conn.get_ip()} since {conn.events[0].time}")
 
     print("")
     print(f"Closed connections: {len(closed_connections)}")
