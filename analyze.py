@@ -2,10 +2,12 @@
 
 import argparse
 import ipaddress
+import json
 import sys
 from dataclasses import dataclass
 from datetime import datetime, timedelta, time, timezone
 from enum import Enum
+import urllib.request
 
 from systemd import journal
 from typing import Iterable
@@ -105,8 +107,11 @@ def parse_datetime(dt_str):
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description="Create summary of the endlessh log")
-    parser.add_argument("-u", "--unit", type=str, help="The systemd unit name (default: endlessh.service)", default="endlessh.service")
+    parser.add_argument(
+        "-u", "--unit", type=str, help="The systemd unit name (default: endlessh.service)", default="endlessh.service"
+    )
     parser.add_argument("-U", "--user", action="store_true", help="Execute for current user instead of system")
+    parser.add_argument("-g", "--geo-ip", action="store_true", help="Look up the geo ip information")
 
     # time range arguments/presets
     parser.add_argument("--start", type=str, help="Start datetime (e.g., 2025-08-01T00:00:00)")
@@ -178,6 +183,16 @@ def human_readable_seconds(seconds: int) -> str:
         return f"{hours} hour(s), {minutes} minute(s), {rem_seconds} second(s)"
 
 
+def get_geoip_info(ip: ipaddress.IPv4Address | ipaddress.IPv6Address) -> dict:
+    ip_str = str(ip)
+    if "." in ip_str and ":" in ip_str:
+        # convert ipv4-mapped-ipv6-address to regular v6
+        ip_str = ip_str.split(":")[-1]
+
+    with urllib.request.urlopen(f"https://ipinfo.io/{ip_str}") as response:
+        return json.loads(response.read().decode())
+
+
 def main():
     args = parse_arguments()
     try:
@@ -226,7 +241,19 @@ def main():
     for conns in reversed(sorted(grouped_connections.values(), key=len)):
         ip = conns[0].get_ip()
         duration = sum(conn.get_duration() for conn in conns)
-        print(f"{ip}: {len(conns)} connections, spent {human_readable_seconds(int(duration))}")
+
+        msg = f"{ip}"
+        if args.geo_ip:
+            geoip_info = get_geoip_info(ip)
+            if "hostname" in geoip_info:
+                msg += f" {geoip_info['hostname']}"
+            if "org" in geoip_info:
+                msg += f" {geoip_info['org']}"
+            if "region" in geoip_info:
+                msg += f" ({geoip_info['region']}, {geoip_info.get('country', '?')})"
+
+        print(f"{msg}: {len(conns)} connections, spent {human_readable_seconds(int(duration))}")
+
 
 if __name__ == "__main__":
     main()

@@ -5,7 +5,13 @@ As a sysadmin, you might not only want to piss off attackers, but you might also
 
 The `analyze.py` script is a very simple Python script that uses your `journalctl` log to parse the `endlessh` log messages and print a nice summary about attackers that got stuck in the tarpit:
 
-```
+```bash
+# Shows open connections with their IP Address and utilized file descriptor
+Currently open connections:
+        event=(IPv4Address('139.X.X.99'), 4)
+
+# Shows closed connections grouped by IP address
+Closed connections: 70
 80.X.X.138: 53 connections, spent 22 minute(s), 0 second(s)
 20.X.X.33: 2 connectionis, spent 40 second(s)
 ...
@@ -28,3 +34,14 @@ If `endlessh` is running in unprivileged mode, you can specify the `--user` flag
 
 Finally, the date range is specified.
 You can either use a custom range by specifying `--start/--end` in the given format (see the `./analyze.py --help`), or you can use a customized preset, e.g. `--today` or `--yesterday`.
+
+## Geolocation
+
+To properly lookup geo information, a geolocation database is required.
+For now, the `-g/--geo-ip` flag allows using the [ipinfo.io](https://ipinfo.io) API to add simple geolocation information to the output:
+
+```bash
+Closed connections: 83
+80.X.X.X AS39612 Tevia Ltd. (Moscow, RU): 53 connections, spent 22 minute(s), 0 second(s)
+3.X.X.X scan.cypex.ai AS16509 Amazon.com, Inc. (Ohio, US): 6 connections, spent 2 minute(s), 0 second(s)
+```
