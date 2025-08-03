@@ -1,0 +1,7 @@
+[project]
+name = "endlessh-journal-analyzer"
+version = "0.1.0"
+description = "Analyze endlessh logs in journalctl"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = []
