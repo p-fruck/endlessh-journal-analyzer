@@ -104,9 +104,9 @@ def parse_datetime(dt_str):
 
 
 def parse_arguments():
-    parser = argparse.ArgumentParser(description="Retrieve systemd logs for a specific unit in a given time range.")
-    parser.add_argument("unit", type=str, help="The systemd unit name (e.g., ssh.service)")
-    parser.add_argument("--user", action="store_true", help="Execute for current user instead of system")
+    parser = argparse.ArgumentParser(description="Create summary of the endlessh log")
+    parser.add_argument("-u", "--unit", type=str, help="The systemd unit name (default: endlessh.service)", default="endlessh.service")
+    parser.add_argument("-U", "--user", action="store_true", help="Execute for current user instead of system")
 
     # time range arguments/presets
     parser.add_argument("--start", type=str, help="Start datetime (e.g., 2025-08-01T00:00:00)")
@@ -227,7 +227,6 @@ def main():
         ip = conns[0].get_ip()
         duration = sum(conn.get_duration() for conn in conns)
         print(f"{ip}: {len(conns)} connections, spent {human_readable_seconds(int(duration))}")
-
 
 if __name__ == "__main__":
     main()
