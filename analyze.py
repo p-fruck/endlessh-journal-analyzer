@@ -237,10 +237,12 @@ def main():
         else:
             grouped_connections[conn.get_ip()] = [conn]
 
+    total_time = 0
     # order by ip with most connections
     for conns in reversed(sorted(grouped_connections.values(), key=len)):
         ip = conns[0].get_ip()
         duration = sum(conn.get_duration() for conn in conns)
+        total_time += duration
 
         msg = f"{ip}"
         if args.geo_ip:
@@ -254,6 +256,8 @@ def main():
 
         print(f"{msg}: {len(conns)} connections, spent {human_readable_seconds(int(duration))}")
 
+    print("")
+    print(f"Total time: {human_readable_seconds(int(total_time))}")
 
 if __name__ == "__main__":
     main()
